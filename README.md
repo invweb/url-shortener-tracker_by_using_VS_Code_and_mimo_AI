@@ -2,6 +2,10 @@
 
 A PHP URL shortener service with statistics and REST API.
 
+## Screenshots
+
+![Home Page](screenshots/home.png)
+
 ## Features
 
 - Shorten URLs with auto-generated or custom aliases
