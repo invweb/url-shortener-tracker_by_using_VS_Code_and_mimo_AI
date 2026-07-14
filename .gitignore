@@ -1,0 +1,5 @@
+/vendor/
+*.db
+*.log
+.env
+composer.phar

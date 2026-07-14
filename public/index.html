@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f5; padding: 2rem; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555; }
+        input[type="url"], input[type="text"] { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; }
+        button { width: 100%; padding: 0.75rem; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 1.5rem; padding: 1rem; background: #d4edda; border-radius: 4px; display: none; }
+        .result.error { background: #f8d7da; color: #721c24; }
+        .result a { color: #007bff; font-weight: bold; word-break: break-all; }
+        .help { font-size: 0.875rem; color: #666; margin-top: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+        <form id="shortenForm">
+            <div class="form-group">
+                <label for="url">Long URL</label>
+                <input type="url" id="url" name="url" placeholder="https://example.com/very-long-url" required>
+            </div>
+            <div class="form-group">
+                <label for="custom_alias">Custom Alias (optional)</label>
+                <input type="text" id="custom_alias" name="custom_alias" placeholder="my-link">
+                <p class="help">Leave empty for auto-generated code</p>
+            </div>
+            <button type="submit">Shorten URL</button>
+        </form>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('shortenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const urlInput = document.getElementById('url');
+            const aliasInput = document.getElementById('custom_alias');
+            const resultDiv = document.getElementById('result');
+
+            const body = { url: urlInput.value };
+            if (aliasInput.value.trim()) {
+                body.custom_alias = aliasInput.value.trim();
+            }
+
+            try {
+                const response = await fetch('/api/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const shortUrl = `${window.location.origin}/${data.data.display_code}`;
+                    resultDiv.className = 'result';
+                    resultDiv.innerHTML = `
+                        <strong>Short URL:</strong><br>
+                        <a href="${shortUrl}" target="_blank">${shortUrl}</a><br><br>
+                        <small>Original: ${data.data.original_url}</small>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = data.error;
+                }
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'An error occurred. Please try again.';
+                resultDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
