@@ -4,7 +4,7 @@ A PHP URL shortener service with statistics and REST API.
 
 ## Screenshots
 
-![Home Page](screenshots/home.png)
+![Home Page](screenshots/shorter.png)
 
 ## Features
 
